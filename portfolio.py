@@ -69,6 +69,7 @@ last_checkpoint = accounts_history.get(account_name, [{}])[-1]
 checkpoint = {}
 checkpoint['time'] = str(datetime.now())
 checkpoint['protocols'] = {}
+checkpoint['tokens'] = {}
 
 console = Console()
 
@@ -155,6 +156,11 @@ for protocol_name, strategies in portfolio.items():
                 'farm_apy': '{:.2f}%'.format(farm_apy),
                 'usd': '${:.0f}'.format(token_amount * token_price + get_usd_value(rewards, token_prices))
             })
+        checkpoint['tokens'].setdefault(token_name, {'amount': 0, 'value': 0})
+        checkpoint['tokens'][token_name]['amount'] += token_amount
+        for reward_token_name, reward_amount in rewards.items():
+            checkpoint['tokens'].setdefault(reward_token_name, {'amount': 0, 'usd_value': 0})
+            checkpoint['tokens'][reward_token_name]['amount'] += reward_amount
         last_protocol_record = last_checkpoint.get('protocols', {}).get(protocol_name, {})
         protocol_usd_total += token_amount * token_price + get_usd_value(rewards, token_prices)
         protocol_usd_delta = protocol_usd_total - last_protocol_record.get('usd_value', protocol_usd_total)
@@ -170,10 +176,34 @@ for protocol_name, strategies in portfolio.items():
 
 # TODO: add wallet
 asset_usd_delta = total_asset_usd - last_checkpoint.get('net_worth', total_asset_usd)
-checkpoint['net_worth'] = total_asset_usd
 color = 'green' if asset_usd_delta >= 0 else 'red'
 sign = '+' if asset_usd_delta >= 0 else ''
 console.print("Net Worth: [bold]${:.0f}[/]    [{}]{}${:.0f}[/]".format(total_asset_usd, color, sign, asset_usd_delta))
+asset_table = Table(
+        show_header=True,
+        header_style="bold magenta")
+asset_table.add_column('Token')
+asset_table.add_column('Balance', justify='right')
+asset_table.add_column('Price', justify='right')
+asset_table.add_column('USD Value', justify='right')
+asset_table.add_column('Change', justify='right')
+for token_name, token_info in checkpoint['tokens'].items():
+    token_amount = token_info['amount']
+    token_usd_value = token_amount * token_prices.get(token_name, 0)
+    token_info['usd_value'] = token_usd_value
+    last_usd_value = last_checkpoint.get('tokens', {}).get(token_name, {}).get('usd_value', 0)
+    token_usd_delta = token_usd_value - last_usd_value
+    color = 'green' if token_usd_delta >= 0 else 'red'
+    sign = '+' if token_usd_delta >= 0 else ''
+    asset_table.add_row(
+        token_name,
+        '{:.3f}'.format(token_info['amount']),
+        '${:.3f}'.format(token_prices.get(token_name, 0)),
+        '${:.0f}'.format(token_usd_value),
+        '[{}]{}${:.0f}[/]'.format(color, sign, token_usd_delta))
+console.print(asset_table)
+
+checkpoint['net_worth'] = total_asset_usd
 accounts_history.setdefault(account_name, [])
 accounts_history[account_name].append(checkpoint)
 if '--save' in sys.argv:
