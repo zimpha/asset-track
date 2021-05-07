@@ -1,0 +1,24 @@
+{
+    "account": "0x84D34f4f83a87596Cd3FB6887cFf8F17Bf5A7B83",
+    "portfolio": {
+      "bsc": {
+        "single-asset": {
+          "BTC": [
+            { "type": "stake", "yield": "Bunny" },
+            { "type": "stake", "yield": "Belt" }
+          ],
+          "ETH": [
+            { "type": "stake", "yield": "Belt" }
+          ],
+          "USDT": [
+            { "type": "stake", "yield": "Bunny" }
+          ],
+          "BUSD": [
+            { "type": "stake", "yield": "Bunny" }
+          ]
+        },
+        "liquidity-pool": {}
+      }
+    }
+  }
+  
