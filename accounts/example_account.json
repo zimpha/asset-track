@@ -3,7 +3,9 @@
     "portfolio": {
       "bsc": {
         "single-asset": {
+          "CFX": [{ "type": "lend", "yield": "Flux" }],
           "BTC": [
+            { "type": "loan", "yield": "Flux" },
             { "type": "stake", "yield": "Bunny" },
             { "type": "stake", "yield": "Belt" }
           ],
@@ -15,6 +17,11 @@
           ],
           "BUSD": [
             { "type": "stake", "yield": "Bunny" }
+          ],
+          "BNB": [
+            { "type": "loan", "yield": "Flux" },
+            { "type": "lend", "yield": "BZX", "optimizer": "Autofarm" },
+            { "type": "lend", "yield": "BZX" }
           ]
         },
         "liquidity-pool": {}

@@ -101,11 +101,11 @@ class Flux(object):
 
     def supply_value(self, user, block_number='latest'):
         user_info = self._get_user_info(user, block_number)
-        return user_info['supply_value']
+        return user_info.get('supply_value', 0)
     
     def borrow_value(self, user, block_number='latest'):
         user_info = self._get_user_info(user, block_number)
-        return user_info['borrow_value']
+        return user_info.get('borrow_value', 0)
 
     def _get_user_info(self, user, block_number='latest'):
         if user in self.cache:
@@ -188,6 +188,7 @@ class Flux(object):
         else:
             title_str += "    [bold white]${:.0f}[/]  [red]${:.0f}[/]".format(usd_total, usd_delta)
         console.print(title_str, style='italic')
-        console.print(' Collateralization Ratio: {:.2f}%'.format(supply_value / borrow_value * 100))
+        if supply_value > 0:
+            console.print(' Collateralization Ratio: {:.2f}%'.format(supply_value / borrow_value * 100))
         console.print(supply_table)
         console.print(borrow_table)
