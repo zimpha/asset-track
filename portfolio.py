@@ -189,6 +189,8 @@ asset_table.add_column('USD Value', justify='right')
 asset_table.add_column('Change', justify='right')
 for token_name, token_info in checkpoint['tokens'].items():
     token_amount = token_info['amount']
+    if token_amount == 0:
+        continue
     token_usd_value = token_amount * token_prices.get(token_name, 0)
     token_info['usd_value'] = token_usd_value
     last_usd_value = last_checkpoint.get('tokens', {}).get(token_name, {}).get('usd_value', 0)
