@@ -4,6 +4,7 @@ from rich.table import Table
 
 from chain.bsc import w3
 from oracle.apy import beefy_apy
+from protocol import YieldFarmingBase
 
 beefy_vault = {
     # 1Inch
@@ -42,7 +43,7 @@ beefy_vault = {
 }
 
 
-class Beefy(object):
+class Beefy(YieldFarmingBase):
     BIFI = '0xCa3F508B8e4Dd382eE878A314789373D80A5190A'
 
     def __init__(self, vault_abi):
@@ -53,15 +54,8 @@ class Beefy(object):
         self.farm_info = None
 
     @property
-    def type(self):
-        return 'Farming'
-
-    @property
     def name(self):
         return 'Beefy'
-
-    def token_address(self):
-        return self.BIFI
 
     @staticmethod
     def token_name():
@@ -72,7 +66,7 @@ class Beefy(object):
         return 'beefy-finance'
 
     @staticmethod
-    def pool_name(original_token_name, original_protocol=None):
+    def pool_name(original_token_name, underlying_protocol=None):
         return original_token_name
 
     def shares(self, user, pool_name, block_number='latest'):
@@ -85,7 +79,7 @@ class Beefy(object):
         return shares, shares * price // 10 ** 18
 
     def reward(self, user, pool_name, block_number='latest'):
-        return { 'BIFI': 0 }
+        return {'BIFI': 0}
 
     def apy(self, pool_name):
         self._get_farm_info()
@@ -104,9 +98,11 @@ class Beefy(object):
     def print_pools(self, console, pools, usd_total, usd_delta):
         title_str = " [link=https://app.beefy.finance/][bold blue]Beefy[/][/link] on BSC"
         if usd_delta >= 0:
-            title_str += "    [bold white]${:.0f}[/]  [green]+${:.0f}[/]".format(usd_total, usd_delta)
+            title_str += "    [bold white]${:.0f}[/]  [green]+${:.0f}[/]".format(
+                usd_total, usd_delta)
         else:
-            title_str += "    [bold white]${:.0f}[/]  [red]${:.0f}[/]".format(usd_total, usd_delta)
+            title_str += "    [bold white]${:.0f}[/]  [red]${:.0f}[/]".format(
+                usd_total, usd_delta)
         console.print(title_str, style='italic')
         table = Table(
             show_header=True,

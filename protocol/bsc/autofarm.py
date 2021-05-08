@@ -4,6 +4,7 @@ from rich.table import Table
 
 from oracle.apy import autofarm_apy
 from chain.bsc import w3
+from protocol import YieldFarmingBase
 
 pool_index = {
     'beltBNB': 338,
@@ -23,7 +24,7 @@ pool_index = {
 }
 
 
-class Autofarm(object):
+class Autofarm(YieldFarmingBase):
     AUTOv2 = '0xa184088a740c695E156F91f5cC086a06bb78b827'
 
     def __init__(self, abi):
@@ -32,15 +33,8 @@ class Autofarm(object):
         self.farm_info = None
 
     @property
-    def type(self):
-        return 'Farming'
-
-    @property
     def name(self):
         return 'AutoFarm'
-
-    def token_address(self):
-        return self.AUTOv2
 
     @staticmethod
     def token_name():
@@ -51,11 +45,8 @@ class Autofarm(object):
         return 'auto'
 
     @staticmethod
-    def pool_name(original_token_name):
+    def pool_name(original_token_name, underlying_protocol=None):
         return original_token_name
-
-    def contract_address(self):
-        return self.contract.address
 
     def staked(self, user, pool_name, block_number='latest', optimizer=None):
         pid = pool_index[pool_name]
@@ -90,9 +81,11 @@ class Autofarm(object):
     def print_pools(self, console, pools, usd_total, usd_delta):
         title_str = " [link=https://autofarm.network/][bold blue]Autofarm[/][/link] on BSC"
         if usd_delta >= 0:
-            title_str += "    [bold white]${:.0f}[/]  [green]+${:.0f}[/]".format(usd_total, usd_delta)
+            title_str += "    [bold white]${:.0f}[/]  [green]+${:.0f}[/]".format(
+                usd_total, usd_delta)
         else:
-            title_str += "    [bold white]${:.0f}[/]  [red]${:.0f}[/]".format(usd_total, usd_delta)
+            title_str += "    [bold white]${:.0f}[/]  [red]${:.0f}[/]".format(
+                usd_total, usd_delta)
         console.print(title_str, style='italic')
         table = Table(
             show_header=True,

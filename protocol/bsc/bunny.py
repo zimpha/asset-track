@@ -4,6 +4,7 @@ from rich.table import Table
 
 from oracle.apy import bunny_apy
 from chain.bsc import w3
+from protocol import YieldFarmingBase
 
 pool_address = {
     'CAKE': '0xEDfcB78e73f7bA6aD2D829bf5D462a0924da28eD',
@@ -20,7 +21,7 @@ base_reward_token = {
 }
 
 
-class Bunny(object):
+class Bunny(YieldFarmingBase):
     BUNNY = '0xC9849E6fdB743d08fAeE3E34dd2D1bc69EA11a51'
 
     def __init__(self, dashboard_abi):
@@ -30,15 +31,8 @@ class Bunny(object):
         self.pool_cache = {}
 
     @property
-    def type(self):
-        return 'Farming'
-
-    @property
     def name(self):
         return 'PancakeBunny'
-
-    def token_address(self):
-        return self.BUNNY
 
     @staticmethod
     def token_name():
@@ -49,7 +43,7 @@ class Bunny(object):
         return 'pancakebunny'
 
     @staticmethod
-    def pool_name(original_token_name):
+    def pool_name(original_token_name, underlying_protocol=None):
         return original_token_name
 
     def staked(self, user, pool_name, block_number='latest', optimizer=None):

@@ -3,6 +3,7 @@
 from rich.table import Table
 
 from chain.bsc import w3
+from protocol import LendingBase
 
 name_to_market = {
     'fCFX': '0xd4a16acCC595D958074283a592A924B08377beE9',
@@ -23,26 +24,21 @@ for name, market in name_to_market.items():
     market_to_name[market] = name
 
 
-class Flux(object):
+class Flux(LendingBase):
     bcFLUX = '0x0747CDA49C82d3fc6B06dF1822E1DE0c16673e9F'
 
     def __init__(self, provider_abi, market_abi):
-        self.contract = w3.eth.contract(abi=provider_abi, address='0xbbf0f936045cb99c60EAFddb03A830a2dFa5Fb94')
+        self.contract = w3.eth.contract(
+            abi=provider_abi, address='0xbbf0f936045cb99c60EAFddb03A830a2dFa5Fb94')
         self.markets = {}
         for token_name, address in name_to_market.items():
-            self.markets[token_name] = w3.eth.contract(abi=market_abi, address=name_to_market[token_name])
+            self.markets[token_name] = w3.eth.contract(
+                abi=market_abi, address=name_to_market[token_name])
         self.cache = {}
-    
-    @property
-    def type(self):
-        return 'Lending'
-    
+
     @property
     def name(self):
         return 'Flux'
-
-    def token_address(self):
-        return self.bcFLUX
 
     @staticmethod
     def token_name():
@@ -53,53 +49,67 @@ class Flux(object):
         return ''
 
     @staticmethod
-    def pool_name(original_token_name):
+    def pool_name(original_token_name, underlying_protocol=None):
         return 'f' + original_token_name
 
-    def lend(self, user, pool_name, block_number='latest', optimizer=None):
-        user_info = self._get_user_info(user, block_number).get(pool_name, None)
+    def supply(self, user, pool_name, block_number='latest', optimizer=None):
+        user_info = self._get_user_info(
+            user, block_number).get(pool_name, None)
         if user_info is None:
             return 0, 0, 0
         else:
-            shares = self.markets[pool_name].functions.balanceOf(user).call(block_identifier=block_number)
+            shares = self.markets[pool_name].functions.balanceOf(
+                user).call(block_identifier=block_number)
             return shares, user_info['supply']
 
     def borrow(self, user, pool_name, block_number='latest'):
-        user_info = self._get_user_info(user, block_number).get(pool_name, None)
+        user_info = self._get_user_info(
+            user, block_number).get(pool_name, None)
         if user_info is None:
             return 0
         else:
             return user_info['borrow']
 
     def reward(self, user, pool_name, block_number='latest'):
-        user_info = self._get_user_info(user, block_number).get(pool_name, None)
+        user_info = self._get_user_info(
+            user, block_number).get(pool_name, None)
         if user_info is None:
-            return { 'FLUX': 0 }
+            return {'FLUX': 0}
         else:
-            return { 'FLUX': (user_info['flux_supply'] + user_info['flux_borrow']) / 10 ** 18 }
-    
-    def interest_rate(self, user, pool_name, block_number='latest'):
-        user_info = self._get_user_info(user, block_number).get(pool_name, None)
-        if user_info is None:
-            return 0
-        elif user_info['supply'] > 0:
-            return user_info['supply_apy'] - user_info['flux_supply_apy']
-        else:
-            return user_info['flux_borrow_apy'] - user_info['borrow_apy']
+            return {'FLUX': (user_info['flux_supply'] + user_info['flux_borrow']) / 10 ** 18}
 
-    def apy(self, user, pool_name, block_number='latest'):
-        user_info = self._get_user_info(user, block_number).get(pool_name, None)
+    def supply_interest_rate(self, user, pool_name, block_number='latest'):
+        user_info = self._get_user_info(
+            user, block_number).get(pool_name, None)
         if user_info is None:
             return 0
-        elif user_info['supply'] > 0:
-            return user_info['supply_apy']
-        else:
-            return user_info['borrow_apy']
+        return user_info['supply_apy'] - user_info['flux_supply_apy']
+
+    def borrow_interest_rate(self, user, pool_name, block_number='latest'):
+        user_info = self._get_user_info(
+            user, block_number).get(pool_name, None)
+        if user_info is None:
+            return 0
+        return user_info['flux_borrow_apy'] - user_info['borrow_apy']
+
+    def borrow_apy(self, user, pool_name, block_number='latest'):
+        user_info = self._get_user_info(
+            user, block_number).get(pool_name, None)
+        if user_info is None:
+            return 0
+        return user_info['borrow_apy']
+
+    def supply_apy(self, user, pool_name, block_number='latest'):
+        user_info = self._get_user_info(
+            user, block_number).get(pool_name, None)
+        if user_info is None:
+            return 0
+        return user_info['supply_apy']
 
     def supply_value(self, user, block_number='latest'):
         user_info = self._get_user_info(user, block_number)
         return user_info.get('supply_value', 0)
-    
+
     def borrow_value(self, user, block_number='latest'):
         user_info = self._get_user_info(user, block_number)
         return user_info.get('borrow_value', 0)
@@ -108,7 +118,8 @@ class Flux(object):
         if user in self.cache:
             return self.cache[user]
         user_info = {}
-        _, markets, flux_supplies, flux_borrows = self.contract.functions.unclaimedFluxAtLoan(user).call(block_identifier=block_number)
+        _, markets, flux_supplies, flux_borrows = self.contract.functions.unclaimedFluxAtLoan(
+            user).call(block_identifier=block_number)
         for (market, flux_supply, flux_borrow) in zip(markets, flux_supplies, flux_borrows):
             token_name = market_to_name[market]
             user_info[token_name] = {
@@ -121,7 +132,8 @@ class Flux(object):
                 'supply': 0,
                 'borrow': 0,
             }
-        _, _, _, _, supply_value, borrow_value, markets, supply_apys, borrow_apys, borrow_flux_apys, supply_flux_apys, supplies, borrows = self.contract.functions.getProfitability(user).call(block_identifier=block_number)
+        _, _, _, _, supply_value, borrow_value, markets, supply_apys, borrow_apys, borrow_flux_apys, supply_flux_apys, supplies, borrows = self.contract.functions.getProfitability(
+            user).call(block_identifier=block_number)
         for (market, supply_apy, borrow_apy, flux_supply_apy, flux_borrow_apy, supply, borrow) in zip(markets, supply_apys, borrow_apys, supply_flux_apys, borrow_flux_apys, supplies, borrows):
             token_name = market_to_name[market]
             user_info.setdefault(token_name, {})
@@ -137,7 +149,7 @@ class Flux(object):
             })
         self.cache[user] = user_info
         return user_info
-    
+
     def print_pools(self, console, supply_value, borrow_value, pools, usd_total, usd_delta):
         total_supply = 0
         total_borrow = 0
@@ -178,14 +190,17 @@ class Flux(object):
                     pool['interest_rate'],
                     pool['farm_apy'],
                     pool['usd'])
-        
+
         title_str = " [link=https://flux.01.finance/bsc/][bold blue]Flux[/][/link] on BSC"
         if usd_delta >= 0:
-            title_str += "    [bold white]${:.0f}[/]  [green]+${:.0f}[/]".format(usd_total, usd_delta)
+            title_str += "    [bold white]${:.0f}[/]  [green]+${:.0f}[/]".format(
+                usd_total, usd_delta)
         else:
-            title_str += "    [bold white]${:.0f}[/]  [red]${:.0f}[/]".format(usd_total, usd_delta)
+            title_str += "    [bold white]${:.0f}[/]  [red]${:.0f}[/]".format(
+                usd_total, usd_delta)
         console.print(title_str, style='italic')
         if supply_value > 0:
-            console.print(' Collateralization Ratio: {:.2f}%'.format(supply_value / borrow_value * 100))
+            console.print(' Collateralization Ratio: {:.2f}%'.format(
+                supply_value / borrow_value * 100))
         console.print(supply_table)
         console.print(borrow_table)

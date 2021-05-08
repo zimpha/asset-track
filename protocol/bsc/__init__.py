@@ -10,6 +10,7 @@ from . import bzx as _bzx
 from . import flux as _flux
 from . import bunny as _bunny
 from . import bakery as _bakery
+from . import venus as _venus
 
 _abi_dir = '/'.join(os.path.dirname(__file__).split('/')[:-2])
 
@@ -38,6 +39,9 @@ Bunny = _bunny.Bunny(dashboard_abi=_bunny_abi)
 _bakery_abi = json.load(open(_abi_dir + '/abi/bakery.json'))
 Bakery = _bakery.Bakery(master_abi=_bakery_abi)
 
+_venus_abi = json.load(open(_abi_dir + '/abi/venus.json'))
+Venus = _venus.Venus(vault_abi=_venus_abi)
+
 protocols = {
     'Autofarm': Autofarm,
     'Beefy': Beefy,
@@ -46,4 +50,5 @@ protocols = {
     'Flux': Flux,
     'Bunny': Bunny,
     'Bakery': Bakery,
+    'Venus': Venus,
 }

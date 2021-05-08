@@ -94,13 +94,13 @@ for protocol_name, strategies in portfolio.items():
         else:
             optimizer = None
         if type == 'lend':
-            shares, token_amount = yield_pool.lend(account, pool_name, optimizer=optimizer)
+            shares, token_amount = yield_pool.supply(account, pool_name, optimizer=optimizer)
             token_amount /= 10 ** 18
-            shares /= 10 ** 18
+            shares /= yield_pool.share_decimals
             if optimizer is None:
                 rewards = yield_pool.reward(account, pool_name)
-                interest_rate = yield_pool.interest_rate(account, pool_name)
-                farm_apy = yield_pool.apy(account, pool_name)
+                interest_rate = yield_pool.supply_interest_rate(account, pool_name)
+                farm_apy = yield_pool.supply_apy(account, pool_name)
                 pools.append({
                     'type': 'lend',
                     'name': token_name,
@@ -124,7 +124,7 @@ for protocol_name, strategies in portfolio.items():
                 })
         elif type == 'stake':
             shares, token_amount = yield_pool.staked(account, pool_name, optimizer=optimizer)
-            shares /= 10 ** 18
+            shares /= 10 ** yield_pool.share_decimals
             token_amount /= 10 ** 18
             if optimizer is None:
                 rewards = yield_pool.reward(account, pool_name)
@@ -144,8 +144,8 @@ for protocol_name, strategies in portfolio.items():
         elif type == 'loan':
             token_amount = yield_pool.borrow(account, pool_name)
             rewards = yield_pool.reward(account, pool_name)
-            interest_rate = yield_pool.interest_rate(account, pool_name)
-            farm_apy = yield_pool.apy(account, pool_name)
+            interest_rate = yield_pool.borrow_interest_rate(account, pool_name)
+            farm_apy = yield_pool.borrow_apy(account, pool_name)
             token_amount = -token_amount / 10 ** 18
             pools.append({
                 'type': 'loan',

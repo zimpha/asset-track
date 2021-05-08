@@ -2,91 +2,99 @@
 
 from rich.table import Table
 
-from oracle.apy import bzx_apy
+from oracle.apy import venus_apy
 from chain.bsc import w3
 from protocol import LendingBase
 
-fulcrum_vault = {
-    'iBNB': '0x49646513609085f39D9e44b413c74530Ba6E2c0F',
-    'iUSDT': '0xf326b42A237086F1De4E7D68F2d2456fC787bc01',
-    'iETH': '0x949cc03E43C24A954BAa963A00bfC5ab146c6CE7',
-    'iBTC': '0x97eBF27d40D306aD00bb2922E02c58264b295a95',
-    'iBUSD': '0x7343b25c4953f4C57ED4D16c33cbEDEFAE9E8Eb9',
-    'iLINK': '0xacD39C8d46461bCa7D5Fb23eCD57A4CB0D31fAB5',
-    'iBZRX': '0xA726F2a7B200b03beB41d1713e6158e0bdA8731F',
+venus_vault = {
+    'vSXP': '0x2fF3d0F6990a40261c66E1ff2017aCBc282EB6d0',
+    'vXVS': '0x151B1e2635A717bcDc836ECd6FbB62B674FE3E1D',
+    'vUSDC': '0xecA88125a5ADbe82614ffC12D0DB554E2e2867C8',
+    'vUSDT': '0xfD5840Cd36d94D7229439859C0112a4185BC0255',
+    'vBUSD': '0x95c78222B3D6e262426483D42CfA53685A67Ab9D',
+    'vBNB': '0xA07c5b74C9B40447a954e1466938b865b6BBea36',
+    'vBTC': '0x882C173bC7Ff3b7786CA16dfeD3DFFfb9Ee7847B',
+    'vETH': '0xf508fCD89b8bd15579dc79A6827cB4686A3592c8',
+    'vLTC': '0x57A5297F2cB2c0AaC9D554660acd6D385Ab50c6B',
+    'vXRP': '0xB248a295732e0225acd3337607cc01068e3b9c10',
+    'vBCH': '0x5F0388EBc2B94FA8E123F404b79cCF5f40b29176',
+    'vDOT': '0x1610bc33319e9398de5f57B33a5b184c806aD217',
+    'vLINK': '0x650b940a1033B8A1b1873f78730FcFC73ec11f1f',
+    'vDAI': '0x334b3eCB4DCa3593BCCC3c7EBD1A1C1d1780FBF1',
+    'vFIL': '0xf91d58b5aE142DAcC749f58A49FCBac340Cb0343',
+    'vBETH': '0x972207A639CC1B374B893cc33Fa251b55CEB7c07',
+    'vADA': '0x9A0AF7FDb2065Ce470D72664DE73cAE409dA28Ec',
+    'vDOGE': '0xec3422Ef92B2fb59e84c8B02Ba73F1fE84Ed8D71',
 }
 
-fulcrum_stake_pool = {
-    'iBNB': 0,
-    'iBUSD': 1,
-    'iETH': 2,
-    'iUSDT': 3,
-    'iBTC': 4,
-    'iBZRX': 5,
-    'WBNB-BGOV-V1': 6,
-    'BGOV': 7,
-    'iLINK': 8,
-    'WBNB-BGOV-V2': 9,
-}
 
+class Venus(LendingBase):
+    XVS = '0xcF6BB5389c92Bdda8a3747Ddb454cB7a64626C63'
 
-class BZX(LendingBase):
-    BGOV = '0xf8E026dC4C0860771f691EcFFBbdfe2fa51c77CF'
-
-    def __init__(self, master_abi, vault_abi):
+    def __init__(self, vault_abi):
         self.vaults = {}
-        for token_name, address in fulcrum_vault.items():
+        for token_name, address in venus_vault.items():
             self.vaults[token_name] = w3.eth.contract(
                 abi=vault_abi, address=address)
-        self.master = w3.eth.contract(
-            abi=master_abi, address='0x1FDCA2422668B961E162A8849dc0C2feaDb58915')
+        #self.master = w3.eth.contract(abi=master_abi, address='0x1FDCA2422668B961E162A8849dc0C2feaDb58915')
         self.farm_info = None
 
     @property
     def name(self):
-        return 'bZx'
+        return 'Venus'
 
     @staticmethod
     def token_name():
-        return 'BGOV'
+        return 'XVS'
 
     @staticmethod
     def token_slug_name():
-        return ''
+        return 'venus'
+
+    @property
+    def share_decimals(self):
+        return 8
 
     @staticmethod
     def pool_name(original_token_name, underlying_protocol=None):
-        return 'i' + original_token_name
+        return 'v' + original_token_name
 
     # return shares, asset and apy
     def supply(self, user, pool_name, block_number='latest', optimizer=None):
         if optimizer is None:
-            pid = fulcrum_stake_pool[pool_name]
+            pool_addr = venus_vault[pool_name]
             shares = self.vaults[pool_name].functions.balanceOf(
                 user).call(block_identifier=block_number)
-            shares += self.master.functions.userInfo(
-                pid, user).call(block_identifier=block_number)[0]
+            #shares += self.master.functions.userInfo(
+            #    pid, user).call(block_identifier=block_number)[0]
         else:
             _, shares = optimizer.staked(user, pool_name, block_number)
-        token_price = self.vaults[pool_name].functions.tokenPrice().call(
+        token_price = self.vaults[pool_name].functions.exchangeRateCurrent().call(
             block_identifier=block_number)
         return shares, shares * token_price // 10 ** 18
 
+    def borrow(self, user, pool_name, block_number='latest'):
+        pool_addr = venus_vault[pool_name]
+        return self.vaults[pool_name].functions.borrowBalanceCurrent(user).call(block_identifier=block_number)
+
+    def borrow_interest_rate(self, user, pool_name, block_number='latest'):
+        self._get_farm_info()
+        return self.farm_info[pool_name]['borrow_interest_rate']
+
     def supply_interest_rate(self, user, pool_name, block_number='latest'):
         self._get_farm_info()
-        pool_addr = fulcrum_vault[pool_name]
-        return self.farm_info[pool_addr]['aprLending']
+        return self.farm_info[pool_name]['supply_interest_rate']
 
     def reward(self, user, pool_name, block_number='latest'):
-        pid = fulcrum_stake_pool[pool_name]
-        amount = self.master.functions.pendingBGOV(
-            pid, user).call(block_identifier=block_number)
-        return {'BGOV': amount / 10 ** 18}
+        return {'XVS': 0}
+
+    def borrow_apy(self, user, pool_name, block_number='latest'):
+        self._get_farm_info()
+        return self.farm_info[pool_name]['borrow_apy']
 
     def supply_apy(self, user, pool_name, block_number='latest'):
         self._get_farm_info()
-        pool_addr = fulcrum_vault[pool_name]
-        return self.farm_info[pool_addr]['aprCombined']
+        return self.farm_info[pool_name]['supply_apy']
 
     def supply_value(self, user, block_number='latest'):
         return 0
@@ -97,7 +105,7 @@ class BZX(LendingBase):
     def _get_farm_info(self):
         if self.farm_info is not None:
             return
-        self.farm_info = bzx_apy('bsc')
+        self.farm_info = venus_apy()
 
     def print_pools(self, console, supply_value, borrow_value, pools, usd_total, usd_delta):
         supply_table = Table(
@@ -141,7 +149,7 @@ class BZX(LendingBase):
                     pool['farm_apy'],
                     pool['usd'])
 
-        title_str = " [link=https://bsc.fulcrum.trade/lend][bold blue]bZx[/][/link] on BSC"
+        title_str = " [link=https://app.venus.io/][bold blue]Venus[/][/link] on BSC"
         if usd_delta >= 0:
             title_str += "    [bold white]${:.0f}[/]  [green]+${:.0f}[/]".format(
                 usd_total, usd_delta)

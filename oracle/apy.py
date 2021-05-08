@@ -3,6 +3,7 @@
 import requests
 import json
 
+
 def autofarm_apy():
     apy_url = 'https://static.autofarm.network/bsc/farm_data.json'
     response = requests.get(apy_url)
@@ -51,6 +52,7 @@ def belt_apy():
             }
     return apy_info
 
+
 def bunny_apy():
     apy_url = 'https://firestore.googleapis.com/v1/projects/pancakebunny-finance/databases/(default)/documents/apy_data?pageSize=100'
     pool_info = requests.get(apy_url).json()
@@ -63,7 +65,8 @@ def bunny_apy():
 
 
 def bzx_apy(networks):
-    apy_url = 'https://api.bzx.network/v1/farming-pools-info?networks={}'.format(networks)
+    apy_url = 'https://api.bzx.network/v1/farming-pools-info?networks={}'.format(
+        networks)
     pool_info = requests.get(apy_url).json()['data']
     apy_info = {}
     for pools in pool_info['bsc']['pools']:
@@ -71,5 +74,21 @@ def bzx_apy(networks):
         apy_info[pool_addr] = {
             'aprCombined': float(pools['aprCombined']),
             'aprLending': float(pools['aprLending'])
+        }
+    return apy_info
+
+
+def venus_apy():
+    apy_url = 'https://api.venus.io/api/governance/venus'
+    pool_info = requests.get(apy_url).json()['data']
+    apy_info = {}
+    for market in pool_info['markets']:
+        symbol = market['symbol']
+        apy_info[symbol] = {
+            'borrow_interest_rate': float(market['borrowApy']),
+            'supply_interest_rate': float(market['supplyApy']),
+            'borrow_apy': float(market['borrowVenusApy']) - float(market['borrowApy']),
+            'supply_apy': float(market['supplyApy']) + float(market['supplyVenusApy']),
+            'exchange_rate': int(market['exchangeRate'])
         }
     return apy_info
