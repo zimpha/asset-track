@@ -14,7 +14,13 @@ Add `--save` to make a checkpont.
 python3 portfolio.py 'example_account' --save
 ```
 
-See `accounts/example_account.json` to find how to config your account.
+Each single asset can have a list of yield farming strategies. And each strategy contains at most three fields:
+
++ `type` is the type of this strategy, which is one of `stake`, `loan` or `lend`.
++ `yield` is the original protocol where you stake/supply/borrow the token.
++ `optimizer` is the protocol where you put the `yield` protocol's token, such as `Autofarm` and `Beefy`. This is optional.
+
+See `accounts/example_account.json` for more details.
 
 ## TODO:
   + add wallet balance

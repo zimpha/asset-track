@@ -1,31 +1,25 @@
 {
-    "account": "0x84D34f4f83a87596Cd3FB6887cFf8F17Bf5A7B83",
-    "portfolio": {
-      "bsc": {
-        "single-asset": {
-          "CFX": [{ "type": "lend", "yield": "Flux" }],
-          "BTC": [
-            { "type": "loan", "yield": "Flux" },
-            { "type": "stake", "yield": "Bunny" },
-            { "type": "stake", "yield": "Belt" }
-          ],
-          "ETH": [
-            { "type": "stake", "yield": "Belt" }
-          ],
-          "USDT": [
-            { "type": "stake", "yield": "Bunny" }
-          ],
-          "BUSD": [
-            { "type": "stake", "yield": "Bunny" }
-          ],
-          "BNB": [
-            { "type": "loan", "yield": "Flux" },
-            { "type": "lend", "yield": "BZX", "optimizer": "Autofarm" },
-            { "type": "lend", "yield": "BZX" }
-          ]
-        },
-        "liquidity-pool": {}
-      }
+  "account": "0x84D34f4f83a87596Cd3FB6887cFf8F17Bf5A7B83",
+  "portfolio": {
+    "bsc": {
+      "single-asset": {
+        "CFX": [{ "type": "lend", "yield": "Flux" }],
+        "BTC": [
+          { "type": "loan", "yield": "Flux" },
+          { "type": "stake", "yield": "Bunny" },
+          { "type": "stake", "yield": "Belt" },
+          { "type": "stake", "yield": "Belt", "optimizer": "Beefy" }
+        ],
+        "ETH": [{ "type": "stake", "yield": "Belt" }],
+        "USDT": [{ "type": "stake", "yield": "Bunny" }],
+        "BUSD": [{ "type": "stake", "yield": "Bunny" }],
+        "BNB": [
+          { "type": "loan", "yield": "Flux" },
+          { "type": "lend", "yield": "BZX", "optimizer": "Autofarm" },
+          { "type": "lend", "yield": "BZX" }
+        ]
+      },
+      "liquidity-pool": {}
     }
   }
-  
+}
