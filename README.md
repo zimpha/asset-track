@@ -28,8 +28,17 @@ Each single asset can have a list of yield farming strategies. And each strategy
 
 See `accounts/example_account.json` for more details.
 
+## Supported Protocols
+
++ [Autofarm](https://autofarm.network/)
++ [Bakery](https://www.bakeryswap.org)
++ [Beefy](https://beefy.finance/)
++ [Belt](https://belt.fi/)
++ [Bunny](https://pancakebunny.finance/)
++ [bZx](https://bsc.fulcrum.trade/farm)
++ [Flux](https://flux.01.finance/bsc/)
+
 ## TODO:
-  + add wallet balance
   + add more protocols
   + add liquidity pool
   + add ETH
