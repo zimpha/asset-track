@@ -53,4 +53,5 @@ def token_prices(token_slug_names):
         price = cmc_data[id]['quote']['USD']['price']
         if symbol not in coin_cmc_price:
             coin_cmc_price[symbol] = price
+    coin_cmc_price['USDT'] = 1.0
     return coin_cmc_price

@@ -10,6 +10,7 @@ beefy_vault = {
     'beltETH': '0xf2064C230b285AA6Cf45c6267DA86a8E3505D0AA',
     'beltBNB': '0xC34Ae91312A3c3F9420691922040a5DEe1698E52',
     '4Belt': '0xc1fcf50ccaCd1583BD9d3b41657056878C94e592',
+    'BAKE': '0xaC112E7744C129ae54E65F5D2cb4eA472E08eA0B',
 }
 
 beefy_id_map = {
@@ -17,6 +18,7 @@ beefy_id_map = {
     'beltETH': 'belt-belteth',
     'beltBNB': 'belt-beltbnb',
     '4Belt': 'belt-4belt',
+    'BAKE': 'bakery-bake',
 }
 
 
@@ -56,7 +58,7 @@ class Beefy(object):
     def shares(self, user, pool_name, block_number='latest'):
         return self.vaults[pool_name].functions.balanceOf(user).call(block_identifier=block_number)
 
-    def staked(self, user, pool_name, block_number='latest'):
+    def staked(self, user, pool_name, block_number='latest', optimizer=None):
         shares = self.shares(user, pool_name, block_number)
         price = self.vaults[pool_name].functions.getPricePerFullShare().call(
             block_identifier=block_number)
