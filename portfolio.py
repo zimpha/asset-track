@@ -9,6 +9,7 @@ from rich.table import Table
 from oracle import price
 from protocol.bsc import protocols
 from chain.bsc import w3
+from tokens.bsc import wallet_token_balance
 from datetime import datetime
 
 def load_account(account_name):
@@ -17,7 +18,6 @@ def load_account(account_name):
     token_slug_set = set()
     portfolio = {}
     for token, strategies in account_info['portfolio']['bsc']['single-asset'].items():
-        token_slug_set.add(price.cmc_slug_map[token])
         for strategy in strategies:
             if strategy['yield'] not in protocols:
                 raise RuntimeError("Protocol[{}] not supported".format(strategy['yield']))
@@ -156,14 +156,14 @@ for protocol_name, strategies in portfolio.items():
                 'farm_apy': '{:.2f}%'.format(farm_apy),
                 'usd': '${:.0f}'.format(token_amount * token_price + get_usd_value(rewards, token_prices))
             })
-        checkpoint['tokens'].setdefault(token_name, {'amount': 0, 'value': 0})
+        checkpoint['tokens'].setdefault(token_name, {'amount': 0, 'usd_value': 0})
         checkpoint['tokens'][token_name]['amount'] += token_amount
         for reward_token_name, reward_amount in rewards.items():
             checkpoint['tokens'].setdefault(reward_token_name, {'amount': 0, 'usd_value': 0})
             checkpoint['tokens'][reward_token_name]['amount'] += reward_amount
         last_protocol_record = last_checkpoint.get('protocols', {}).get(protocol_name, {})
         protocol_usd_total += token_amount * token_price + get_usd_value(rewards, token_prices)
-        protocol_usd_delta = protocol_usd_total - last_protocol_record.get('usd_value', protocol_usd_total)
+        protocol_usd_delta = protocol_usd_total - last_protocol_record.get('usd_value', 0)
     checkpoint['protocols'].setdefault(protocol_name, {})
     checkpoint['protocols'][protocol_name]['usd_value'] = protocol_usd_total
     if protocol.type == 'Lending':
@@ -174,8 +174,42 @@ for protocol_name, strategies in portfolio.items():
         protocol.print_pools(console, pools, protocol_usd_total, protocol_usd_delta)
     total_asset_usd += protocol_usd_total
 
-# TODO: add wallet
-asset_usd_delta = total_asset_usd - last_checkpoint.get('net_worth', total_asset_usd)
+# show wallet tokens
+wallet_tokens = wallet_token_balance(account)
+wallet_table = Table(
+        show_header=True,
+        header_style="bold magenta")
+wallet_table.add_column('Token')
+wallet_table.add_column('Balance', justify='right')
+wallet_table.add_column('USD Value', justify='right')
+wallet_usd_value = 0
+wallet_usd_delta = 0
+checkpoint['wallet'] = {}
+for token_name, token_balance in wallet_tokens.items():
+    token_usd_value = token_balance * token_prices.get(token_name, 0)
+    checkpoint['wallet'][token_name] = {
+        'amount': token_balance,
+        'usd_value': token_usd_value,
+    }
+    checkpoint['tokens'].setdefault(token_name, {'amount': 0, 'usd_value': 0})
+    checkpoint['tokens'][token_name]['amount'] += token_balance
+    wallet_usd_value += token_usd_value
+    wallet_usd_delta += token_usd_value
+    wallet_usd_delta -= last_checkpoint.get('wallet', {}).get(token_name, {}).get('usd_value', 0)
+    wallet_table.add_row(
+        token_name,
+        '{:.3f}'.format(token_balance),
+        '${:.0f}'.format(token_usd_value))
+total_asset_usd += wallet_usd_value
+title_str = " [bold blue]Wallet[/] on BSC"
+if wallet_usd_delta >= 0:
+    title_str += "    [bold white]${:.0f}[/]  [green]+${:.0f}[/]".format(wallet_usd_value, wallet_usd_delta)
+else:
+    title_str += "    [bold white]${:.0f}[/]  [red]${:.0f}[/]".format(wallet_usd_value, wallet_usd_delta)
+console.print(title_str, style='italic')
+console.print(wallet_table)
+
+asset_usd_delta = total_asset_usd - last_checkpoint.get('net_worth', 0)
 color = 'green' if asset_usd_delta >= 0 else 'red'
 sign = '+' if asset_usd_delta >= 0 else ''
 console.print("Net Worth: [bold]${:.0f}[/]    [{}]{}${:.0f}[/]".format(total_asset_usd, color, sign, asset_usd_delta))
@@ -189,10 +223,10 @@ asset_table.add_column('USD Value', justify='right')
 asset_table.add_column('Change', justify='right')
 for token_name, token_info in checkpoint['tokens'].items():
     token_amount = token_info['amount']
-    if token_amount == 0:
-        continue
     token_usd_value = token_amount * token_prices.get(token_name, 0)
     token_info['usd_value'] = token_usd_value
+    if token_usd_value < 1.0:
+        continue
     last_usd_value = last_checkpoint.get('tokens', {}).get(token_name, {}).get('usd_value', 0)
     token_usd_delta = token_usd_value - last_usd_value
     color = 'green' if token_usd_delta >= 0 else 'red'

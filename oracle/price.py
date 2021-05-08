@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import urllib.request
 import requests
 import json
 
@@ -14,18 +13,24 @@ cmc_slug_map = {
     'DAI': 'multi-collateral-dai',
     'CAKE': 'pancakeswap',
     'BAKE': 'bakerytoken',
+    'WBNB': 'wbnb',
 }
 
 def token_prices(token_slug_names):
     coin_cmc_price = {}
 
-    flux_statistics_url = 'https://bsc.flux.01defi.com/api/v1/flux/get_trade_statistics_info'
-    f = urllib.request.urlopen(flux_statistics_url)
-    flux_statistics = json.loads(f.read().decode('utf-8'))
-    coin_cmc_price['FLUX'] = float(flux_statistics['data']['fluxPrice'])
+    # FLUX Price
+    response = requests.get('https://bsc.flux.01defi.com/api/v1/flux/get_trade_statistics_info').json()
+    coin_cmc_price['FLUX'] = float(response['data']['fluxPrice'])
+    
+    # price from pancake
+    response = requests.get('https://api.pancakeswap.info/api/v2/tokens').json()
+    for _, token_info in response['data'].items():
+        symbol = token_info['symbol']
+        coin_cmc_price[symbol] = float(token_info['price'])
 
     cmc_base_url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest'
-    cmc_slug = []
+    cmc_slug = list(cmc_slug_map.values())
     for slug in token_slug_names:
         if slug == '':
             continue
