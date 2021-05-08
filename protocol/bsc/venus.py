@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from rich.table import Table
+from web3.contract import get_abi_output_types
 
 from oracle.apy import venus_apy
 from chain.bsc import w3
@@ -31,12 +32,15 @@ venus_vault = {
 class Venus(LendingBase):
     XVS = '0xcF6BB5389c92Bdda8a3747Ddb454cB7a64626C63'
 
-    def __init__(self, vault_abi):
+    def __init__(self, multicall, xvs_abi, controller_abi, vault_abi):
         self.vaults = {}
         for token_name, address in venus_vault.items():
             self.vaults[token_name] = w3.eth.contract(
                 abi=vault_abi, address=address)
-        #self.master = w3.eth.contract(abi=master_abi, address='0x1FDCA2422668B961E162A8849dc0C2feaDb58915')
+        self.controller = w3.eth.contract(
+            abi=controller_abi, address='0xfD36E2c2a6789Db23113685031d7F16329158384')
+        self.multicall = multicall
+        self.xvs = w3.eth.contract(abi=xvs_abi, address=self.XVS)
         self.farm_info = None
 
     @property
@@ -65,8 +69,6 @@ class Venus(LendingBase):
             pool_addr = venus_vault[pool_name]
             shares = self.vaults[pool_name].functions.balanceOf(
                 user).call(block_identifier=block_number)
-            #shares += self.master.functions.userInfo(
-            #    pid, user).call(block_identifier=block_number)[0]
         else:
             _, shares = optimizer.staked(user, pool_name, block_number)
         token_price = self.vaults[pool_name].functions.exchangeRateCurrent().call(
@@ -86,7 +88,16 @@ class Venus(LendingBase):
         return self.farm_info[pool_name]['supply_interest_rate']
 
     def reward(self, user, pool_name, block_number='latest'):
-        return {'XVS': 0}
+        market = venus_vault[pool_name]
+        return {'XVS': self._get_reward(user, [market], True, True, block_number) / 10 ** 18}
+
+    def supply_reward(self, user, pool_name, block_number='latest'):
+        market = venus_vault[pool_name]
+        return {'XVS': self._get_reward(user, [market], False, True, block_number) / 10 ** 18}
+
+    def borrow_reward(self, user, pool_name, block_number='latest'):
+        market = venus_vault[pool_name]
+        return {'XVS': self._get_reward(user, [market], True, False, block_number) / 10 ** 18}
 
     def borrow_apy(self, user, pool_name, block_number='latest'):
         self._get_farm_info()
@@ -106,6 +117,31 @@ class Venus(LendingBase):
         if self.farm_info is not None:
             return
         self.farm_info = venus_apy()
+
+    def _get_reward(self, user, markets, borrow, supply, block_number='latest'):
+        xvs_balance = self.xvs.functions.balanceOf(user)
+        claim_venus = self.controller.functions.claimVenus(
+            [user],
+            markets,
+            borrow,
+            supply)
+        xvs_balance_data = xvs_balance._encode_transaction_data()
+        claim_venus_data = claim_venus._encode_transaction_data()
+
+        ret = self.multicall.functions.aggregate([
+            {'target': xvs_balance.address, 'callData': xvs_balance_data},
+            {'target': claim_venus.address, 'callData': claim_venus_data},
+            {'target': xvs_balance.address, 'callData': xvs_balance_data},
+        ]).call(transaction={'from': user}, block_identifier=block_number)
+
+        xvs_balance_output_types = get_abi_output_types(xvs_balance.abi)
+        claim_venus_output_types = get_abi_output_types(claim_venus.abi)
+
+        initial_balance = xvs_balance.web3.codec.decode_abi(
+            xvs_balance_output_types, ret[1][0])[0]
+        claim_balance = xvs_balance.web3.codec.decode_abi(
+            xvs_balance_output_types, ret[1][2])[0]
+        return claim_balance - initial_balance
 
     def print_pools(self, console, supply_value, borrow_value, pools, usd_total, usd_delta):
         supply_table = Table(

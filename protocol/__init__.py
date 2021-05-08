@@ -44,6 +44,12 @@ class LendingBase(YieldFarmingBase):
     def borrow_interest_rate(self, user, pool_name, block_number='latest'):
         raise NotImplementedError
 
+    def borrow_reward(self, user, pool_name, block_number='latest'):
+        raise NotImplementedError
+    
+    def supply_reward(self, user, pool_name, block_number='latest'):
+        raise NotImplementedError
+
     def supply_apy(self, user, pool_name, block_number='latest'):
         raise NotImplementedError
 

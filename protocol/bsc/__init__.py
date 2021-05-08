@@ -3,6 +3,8 @@
 import os
 import json
 
+from chain.bsc import w3
+
 from . import belt as _belt
 from . import autofarm as _autofarm
 from . import beefy as _beefy
@@ -13,6 +15,12 @@ from . import bakery as _bakery
 from . import venus as _venus
 
 _abi_dir = '/'.join(os.path.dirname(__file__).split('/')[:-2])
+
+_bep20_abi = json.load(open(_abi_dir + '/abi/BEP20.json'))
+
+_multicall_abi = json.load(open(_abi_dir + '/abi/multicall.json'))
+multicall_contract = w3.eth.contract(
+    abi=_multicall_abi, address='0x1Ee38d535d541c55C9dae27B12edf090C608E6Fb')
 
 _autofarm_abi = json.load(open(_abi_dir + '/abi/autofarm.json'))
 Autofarm = _autofarm.Autofarm(abi=_autofarm_abi)
@@ -39,8 +47,11 @@ Bunny = _bunny.Bunny(dashboard_abi=_bunny_abi)
 _bakery_abi = json.load(open(_abi_dir + '/abi/bakery.json'))
 Bakery = _bakery.Bakery(master_abi=_bakery_abi)
 
-_venus_abi = json.load(open(_abi_dir + '/abi/venus.json'))
-Venus = _venus.Venus(vault_abi=_venus_abi)
+_venus_vault_abi = json.load(open(_abi_dir + '/abi/venus_vault.json'))
+_venus_controller_abi = json.load(
+    open(_abi_dir + '/abi/venus_controller.json'))
+Venus = _venus.Venus(multicall=multicall_contract, xvs_abi=_bep20_abi,
+                     controller_abi=_venus_controller_abi, vault_abi=_venus_vault_abi)
 
 protocols = {
     'Autofarm': Autofarm,

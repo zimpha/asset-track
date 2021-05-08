@@ -77,7 +77,7 @@ class BZX(LendingBase):
         pool_addr = fulcrum_vault[pool_name]
         return self.farm_info[pool_addr]['aprLending']
 
-    def reward(self, user, pool_name, block_number='latest'):
+    def supply_reward(self, user, pool_name, block_number='latest'):
         pid = fulcrum_stake_pool[pool_name]
         amount = self.master.functions.pendingBGOV(
             pid, user).call(block_identifier=block_number)

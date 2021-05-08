@@ -37,7 +37,7 @@ See `accounts/example_account.json` for more details.
 + [Bunny](https://pancakebunny.finance/)
 + [bZx](https://bsc.fulcrum.trade/farm)
 + [Flux](https://flux.01.finance/bsc/)
-+ [Venus](https://app.venus.io) without XVS reward
++ [Venus](https://app.venus.io)
 
 ## TODO:
   + add more protocols

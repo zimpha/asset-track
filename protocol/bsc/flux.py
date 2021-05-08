@@ -73,10 +73,23 @@ class Flux(LendingBase):
     def reward(self, user, pool_name, block_number='latest'):
         user_info = self._get_user_info(
             user, block_number).get(pool_name, None)
+        return self.supply_reward(user, pool_name, block_number) + self.borrow_reward(user, pool_name, block_number)
+
+    def supply_reward(self, user, pool_name, block_number='latest'):
+        user_info = self._get_user_info(
+            user, block_number).get(pool_name, None)
         if user_info is None:
             return {'FLUX': 0}
         else:
-            return {'FLUX': (user_info['flux_supply'] + user_info['flux_borrow']) / 10 ** 18}
+            return {'FLUX': user_info['flux_supply'] / 10 ** 18}
+
+    def borrow_reward(self, user, pool_name, block_number='latest'):
+        user_info = self._get_user_info(
+            user, block_number).get(pool_name, None)
+        if user_info is None:
+            return {'FLUX': 0}
+        else:
+            return {'FLUX': user_info['flux_borrow'] / 10 ** 18}
 
     def supply_interest_rate(self, user, pool_name, block_number='latest'):
         user_info = self._get_user_info(

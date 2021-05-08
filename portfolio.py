@@ -98,7 +98,7 @@ for protocol_name, strategies in portfolio.items():
             token_amount /= 10 ** 18
             shares /= yield_pool.share_decimals
             if optimizer is None:
-                rewards = yield_pool.reward(account, pool_name)
+                rewards = yield_pool.supply_reward(account, pool_name)
                 interest_rate = yield_pool.supply_interest_rate(account, pool_name)
                 farm_apy = yield_pool.supply_apy(account, pool_name)
                 pools.append({
@@ -143,7 +143,7 @@ for protocol_name, strategies in portfolio.items():
             })
         elif type == 'loan':
             token_amount = yield_pool.borrow(account, pool_name)
-            rewards = yield_pool.reward(account, pool_name)
+            rewards = yield_pool.borrow_reward(account, pool_name)
             interest_rate = yield_pool.borrow_interest_rate(account, pool_name)
             farm_apy = yield_pool.borrow_apy(account, pool_name)
             token_amount = -token_amount / 10 ** 18
