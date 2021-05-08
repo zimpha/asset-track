@@ -2,6 +2,12 @@
 
 Track your asset in BSC.
 
+Install dependencies by pip3
+
+```bash
+pip3 install rich web3 requests
+```
+
 Use the following to show assets in BSC.
 
 ```bash
