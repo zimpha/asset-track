@@ -28,6 +28,7 @@ def token_prices(token_slug_names):
     for _, token_info in response['data'].items():
         symbol = token_info['symbol']
         coin_cmc_price[symbol] = float(token_info['price'])
+    coin_cmc_price['BNB'] = coin_cmc_price['WBNB']
 
     cmc_base_url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest'
     cmc_slug = list(cmc_slug_map.values())
@@ -50,5 +51,6 @@ def token_prices(token_slug_names):
     for id in cmc_data:
         symbol = cmc_data[id]['symbol']
         price = cmc_data[id]['quote']['USD']['price']
-        coin_cmc_price[symbol] = price
+        if symbol not in coin_cmc_price:
+            coin_cmc_price[symbol] = price
     return coin_cmc_price

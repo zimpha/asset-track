@@ -193,6 +193,8 @@ for token_name, token_balance in wallet_tokens.items():
     }
     checkpoint['tokens'].setdefault(token_name, {'amount': 0, 'usd_value': 0})
     checkpoint['tokens'][token_name]['amount'] += token_balance
+    if token_usd_value < 1.0:
+        continue
     wallet_usd_value += token_usd_value
     wallet_usd_delta += token_usd_value
     wallet_usd_delta -= last_checkpoint.get('wallet', {}).get(token_name, {}).get('usd_value', 0)
@@ -234,7 +236,7 @@ for token_name, token_info in checkpoint['tokens'].items():
     asset_table.add_row(
         token_name,
         '{:.3f}'.format(token_info['amount']),
-        '${:.3f}'.format(token_prices.get(token_name, 0)),
+        '${:.5f}'.format(token_prices.get(token_name, 0)),
         '${:.0f}'.format(token_usd_value),
         '[{}]{}${:.0f}[/]'.format(color, sign, token_usd_delta))
 console.print(asset_table)
