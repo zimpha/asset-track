@@ -13,7 +13,6 @@ cmc_slug_map = {
     'DAI': 'multi-collateral-dai',
     'CAKE': 'pancakeswap',
     'BAKE': 'bakerytoken',
-    'WBNB': 'wbnb',
 }
 
 def token_prices(token_slug_names):
@@ -53,5 +52,6 @@ def token_prices(token_slug_names):
         price = cmc_data[id]['quote']['USD']['price']
         if symbol not in coin_cmc_price:
             coin_cmc_price[symbol] = price
-    coin_cmc_price['USDT'] = 1.0
+    for stable_coin_name in ['USDT', 'BUSD', 'HUSD', 'DAI', 'USDC']:
+        coin_cmc_price[stable_coin_name] = 1.0
     return coin_cmc_price

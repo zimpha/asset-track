@@ -32,7 +32,7 @@ See `accounts/example_account.json` for more details.
 
 + [Autofarm](https://autofarm.network/)
 + [Bakery](https://www.bakeryswap.org)
-+ [Beefy](https://beefy.finance/)
++ [Beefy](https://beefy.finance/) without boost
 + [Belt](https://belt.fi/)
 + [Bunny](https://pancakebunny.finance/)
 + [bZx](https://bsc.fulcrum.trade/farm)

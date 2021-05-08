@@ -16,6 +16,10 @@ pool_index = {
     'iBTC': 140,
     'iETH': 141,
     'iLINK': 142,
+    'BANANA': 348,
+    'BGOV': 357,
+    'KEBAB': 39,
+    'CAKE': 7,
 }
 
 
