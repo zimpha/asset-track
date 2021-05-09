@@ -146,8 +146,8 @@ class BZX(LendingBase):
             title_str += "    [bold white]${:.0f}[/]  [green]+${:.0f}[/]".format(
                 usd_total, usd_delta)
         else:
-            title_str += "    [bold white]${:.0f}[/]  [red]${:.0f}[/]".format(
-                usd_total, usd_delta)
+            title_str += "    [bold white]${:.0f}[/]  [red]-${:.0f}[/]".format(
+                usd_total, -usd_delta)
         console.print(title_str, style='italic')
         console.print(supply_table)
         if borrow:

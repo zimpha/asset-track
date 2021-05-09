@@ -147,6 +147,7 @@ for protocol_name, strategies in portfolio.items():
             interest_rate = yield_pool.borrow_interest_rate(account, pool_name)
             farm_apy = yield_pool.borrow_apy(account, pool_name)
             token_amount = -token_amount / 10 ** 18
+            usd_value = token_amount * token_price + get_usd_value(rewards, token_prices)
             pools.append({
                 'type': 'loan',
                 'name': token_name,
@@ -154,7 +155,7 @@ for protocol_name, strategies in portfolio.items():
                 'rewards': format_reward_info(rewards, token_prices),
                 'interest_rate': '{:.2f}%'.format(interest_rate),
                 'farm_apy': '{:.2f}%'.format(farm_apy),
-                'usd': '${:.0f}'.format(token_amount * token_price + get_usd_value(rewards, token_prices))
+                'usd': '{}${:.0f}'.format('' if usd_value >= 0 else '-', abs(usd_value))
             })
         checkpoint['tokens'].setdefault(token_name, {'amount': 0, 'usd_value': 0})
         checkpoint['tokens'][token_name]['amount'] += token_amount
@@ -207,7 +208,7 @@ title_str = " [bold blue]Wallet[/] on BSC"
 if wallet_usd_delta >= 0:
     title_str += "    [bold white]${:.0f}[/]  [green]+${:.0f}[/]".format(wallet_usd_value, wallet_usd_delta)
 else:
-    title_str += "    [bold white]${:.0f}[/]  [red]${:.0f}[/]".format(wallet_usd_value, wallet_usd_delta)
+    title_str += "    [bold white]${:.0f}[/]  [red]-${:.0f}[/]".format(wallet_usd_value, -wallet_usd_delta)
 console.print(title_str, style='italic')
 console.print(wallet_table)
 
@@ -232,13 +233,13 @@ for token_name, token_info in checkpoint['tokens'].items():
     last_usd_value = last_checkpoint.get('tokens', {}).get(token_name, {}).get('usd_value', 0)
     token_usd_delta = token_usd_value - last_usd_value
     color = 'green' if token_usd_delta >= 0 else 'red'
-    sign = '+' if token_usd_delta >= 0 else ''
+    sign = '+' if token_usd_delta >= 0 else '-'
     asset_table.add_row(
         token_name,
         '{:.3f}'.format(token_info['amount']),
         '${:.5f}'.format(token_prices.get(token_name, 0)),
         '${:.0f}'.format(token_usd_value),
-        '[{}]{}${:.0f}[/]'.format(color, sign, token_usd_delta))
+        '[{}]{}${:.0f}[/]'.format(color, sign, abs(token_usd_delta)))
 console.print(asset_table)
 
 checkpoint['net_worth'] = total_asset_usd

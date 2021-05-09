@@ -209,8 +209,8 @@ class Flux(LendingBase):
             title_str += "    [bold white]${:.0f}[/]  [green]+${:.0f}[/]".format(
                 usd_total, usd_delta)
         else:
-            title_str += "    [bold white]${:.0f}[/]  [red]${:.0f}[/]".format(
-                usd_total, usd_delta)
+            title_str += "    [bold white]${:.0f}[/]  [red]-${:.0f}[/]".format(
+                usd_total, -usd_delta)
         console.print(title_str, style='italic')
         if supply_value > 0:
             console.print(' Collateralization Ratio: {:.2f}%'.format(
