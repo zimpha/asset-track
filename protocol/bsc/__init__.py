@@ -13,6 +13,8 @@ from . import flux as _flux
 from . import bunny as _bunny
 from . import bakery as _bakery
 from . import venus as _venus
+from . import loserswap as _loserswap
+
 
 _abi_dir = '/'.join(os.path.dirname(__file__).split('/')[:-2])
 
@@ -53,6 +55,9 @@ _venus_controller_abi = json.load(
 Venus = _venus.Venus(multicall=multicall_contract, xvs_abi=_bep20_abi,
                      controller_abi=_venus_controller_abi, vault_abi=_venus_vault_abi)
 
+_loserswap_abi = json.load(open(_abi_dir + '/abi/loserswap.json'))
+Loserswap = _loserswap.Loserswap(master_abi=_loserswap_abi)
+
 protocols = {
     'Autofarm': Autofarm,
     'Beefy': Beefy,
@@ -62,4 +67,5 @@ protocols = {
     'Bunny': Bunny,
     'Bakery': Bakery,
     'Venus': Venus,
+    'Loserswap': Loserswap,
 }

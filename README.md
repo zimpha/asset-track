@@ -38,6 +38,7 @@ See `accounts/example_account.json` for more details.
 + [bZx](https://bsc.fulcrum.trade/farm)
 + [Flux](https://flux.01.finance/bsc/)
 + [Venus](https://app.venus.io)
++ [LoserSwap](https://app.loserswap.com/)
 
 ## TODO:
   + add more protocols

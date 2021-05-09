@@ -96,7 +96,7 @@ for protocol_name, strategies in portfolio.items():
         if type == 'lend':
             shares, token_amount = yield_pool.supply(account, pool_name, optimizer=optimizer)
             token_amount /= 10 ** 18
-            shares /= yield_pool.share_decimals
+            shares /= 10 ** yield_pool.share_decimals
             if optimizer is None:
                 rewards = yield_pool.supply_reward(account, pool_name)
                 interest_rate = yield_pool.supply_interest_rate(account, pool_name)
