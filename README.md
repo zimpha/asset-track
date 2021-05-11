@@ -39,6 +39,7 @@ See `accounts/example_account.json` for more details.
 + [Flux](https://flux.01.finance/bsc/)
 + [Venus](https://app.venus.io)
 + [LoserSwap](https://app.loserswap.com/)
++ [ForTube](https://for.tube/)
 
 ## TODO:
   + add more protocols

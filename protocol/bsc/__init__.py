@@ -14,6 +14,7 @@ from . import bunny as _bunny
 from . import bakery as _bakery
 from . import venus as _venus
 from . import loserswap as _loserswap
+from . import fortube as _fortube
 
 
 _abi_dir = '/'.join(os.path.dirname(__file__).split('/')[:-2])
@@ -58,6 +59,12 @@ Venus = _venus.Venus(multicall=multicall_contract, xvs_abi=_bep20_abi,
 _loserswap_abi = json.load(open(_abi_dir + '/abi/loserswap.json'))
 Loserswap = _loserswap.Loserswap(master_abi=_loserswap_abi)
 
+_interest_rate_model_abi = json.load(open(_abi_dir + '/abi/InterestRateModel.json'))
+_fortube_vault_abi = json.load(open(_abi_dir + '/abi/fortube_vault.json'))
+_fortube_controller_abi = json.load(
+    open(_abi_dir + '/abi/venus_controller.json'))
+ForTube = _fortube.ForTube(interest_rate_model_abi=_interest_rate_model_abi, controller_abi=_fortube_controller_abi, vault_abi=_fortube_vault_abi)
+
 protocols = {
     'Autofarm': Autofarm,
     'Beefy': Beefy,
@@ -68,4 +75,5 @@ protocols = {
     'Bakery': Bakery,
     'Venus': Venus,
     'Loserswap': Loserswap,
+    'ForTube': ForTube,
 }
