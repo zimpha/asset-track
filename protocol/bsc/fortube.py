@@ -149,9 +149,7 @@ class ForTube(LendingBase):
             title_justify="left")
         supply_table.add_column('Supplied')
         supply_table.add_column('Balance', justify='center')
-        supply_table.add_column('Rewards', justify='right')
         supply_table.add_column('Interest Rate', justify='right')
-        supply_table.add_column('Farm APY', justify='right')
         supply_table.add_column('USD Value', justify='right')
         borrow_table = Table(
             show_header=True,
@@ -159,9 +157,7 @@ class ForTube(LendingBase):
             title_justify="left")
         borrow_table.add_column('Borrowed')
         borrow_table.add_column('Balance', justify='center')
-        borrow_table.add_column('Rewards', justify='right')
         borrow_table.add_column('Interest Rate', justify='right')
-        borrow_table.add_column('Farm APY', justify='right')
         borrow_table.add_column('USD Value', justify='right')
         supply, borrow = 0, 0
         for pool in pools:
@@ -170,21 +166,17 @@ class ForTube(LendingBase):
                 supply_table.add_row(
                     pool['name'],
                     pool['balance'],
-                    pool['rewards'],
                     pool['interest_rate'],
-                    pool['farm_apy'],
                     pool['usd'])
             else:
                 borrow += 1
                 borrow_table.add_row(
                     pool['name'],
                     pool['balance'],
-                    pool['rewards'],
                     pool['interest_rate'],
-                    pool['farm_apy'],
                     pool['usd'])
 
-        title_str = " [link=https://app.venus.io/][bold blue]Venus[/][/link] on BSC"
+        title_str = " [link=https://for.tube/][bold blue]ForTube[/][/link] on BSC"
         if usd_delta >= 0:
             title_str += "    [bold white]${:.0f}[/]  [green]+${:.0f}[/]".format(
                 usd_total, usd_delta)
