@@ -135,7 +135,6 @@ class Venus(LendingBase):
         ]).call(transaction={'from': user}, block_identifier=block_number)
 
         xvs_balance_output_types = get_abi_output_types(xvs_balance.abi)
-        claim_venus_output_types = get_abi_output_types(claim_venus.abi)
 
         initial_balance = xvs_balance.web3.codec.decode_abi(
             xvs_balance_output_types, ret[1][0])[0]

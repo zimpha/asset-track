@@ -15,6 +15,7 @@ from . import bakery as _bakery
 from . import venus as _venus
 from . import loserswap as _loserswap
 from . import fortube as _fortube
+from . import alpaca as _alpaca
 
 
 _abi_dir = '/'.join(os.path.dirname(__file__).split('/')[:-2])
@@ -65,6 +66,11 @@ _fortube_controller_abi = json.load(
     open(_abi_dir + '/abi/venus_controller.json'))
 ForTube = _fortube.ForTube(interest_rate_model_abi=_interest_rate_model_abi, controller_abi=_fortube_controller_abi, vault_abi=_fortube_vault_abi)
 
+
+_alpaca_vault_abi = json.load(open(_abi_dir + '/abi/alpaca_vault.json'))
+_alpaca_fair_launch_abi = json.load(open(_abi_dir + '/abi/alpaca_fair_launch.json'))
+Alpaca = _alpaca.Alpaca(fair_launch_abi=_alpaca_fair_launch_abi, vault_abi=_alpaca_vault_abi)
+
 protocols = {
     'Autofarm': Autofarm,
     'Beefy': Beefy,
@@ -76,4 +82,5 @@ protocols = {
     'Venus': Venus,
     'Loserswap': Loserswap,
     'ForTube': ForTube,
+    'Alpaca': Alpaca,
 }

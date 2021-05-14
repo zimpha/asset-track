@@ -11,13 +11,15 @@ pool_address = {
     'USDT': '0x0Ba950F0f099229828c10a9B307280a450133FFc',
     'BTC': '0x549d2e2B4fA19179CA5020A981600571C2954F6a',
     'BUSD': '0x0243A20B20ECa78ddEDF6b8ddb43a0286438A67A',
+    'BNB': '0x52cFa188A1468A521A98eaa798E715Fbb9eb38a3',
 }
 
 base_reward_token = {
     'CAKE': 'CAKE',
     'USDT': 'USDT',
     'BTC': 'BTC',
-    'BUSD': 'BUSD'
+    'BUSD': 'BUSD',
+    'BNB': 'BNB'
 }
 
 

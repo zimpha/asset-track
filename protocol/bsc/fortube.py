@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 
 from rich.table import Table
-from web3.contract import get_abi_output_types
 
-from oracle.apy import venus_apy
 from chain.bsc import w3
 from protocol import LendingBase
 
@@ -81,10 +79,6 @@ class ForTube(LendingBase):
     def token_slug_name():
         return 'the-force-protocol'
 
-    @property
-    def share_decimals(self):
-        return 8
-
     @staticmethod
     def pool_name(original_token_name, underlying_protocol=None):
         return 'f' + original_token_name
@@ -92,7 +86,6 @@ class ForTube(LendingBase):
     # return shares, asset and apy
     def supply(self, user, pool_name, block_number='latest', optimizer=None):
         if optimizer is None:
-            pool_addr, _ = fortube_vault[pool_name]
             shares = self.vaults[pool_name].functions.balanceOf(
                 user).call(block_identifier=block_number)
         else:
@@ -102,7 +95,6 @@ class ForTube(LendingBase):
         return shares, shares * token_price // 10 ** 18
 
     def borrow(self, user, pool_name, block_number='latest'):
-        pool_addr, _ = fortube_vault[pool_name]
         return self.vaults[pool_name].functions.borrowBalanceStored(user).call(block_identifier=block_number)
 
     def borrow_interest_rate(self, user, pool_name, block_number='latest'):

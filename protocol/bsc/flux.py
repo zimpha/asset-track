@@ -188,6 +188,7 @@ class Flux(LendingBase):
         borrow_table.add_column('USD Value', justify='right')
         for pool in pools:
             if pool['type'] == 'lend':
+                total_supply += 1
                 supply_table.add_row(
                     pool['name'],
                     pool['balance'],
@@ -196,6 +197,7 @@ class Flux(LendingBase):
                     pool['farm_apy'],
                     pool['usd'])
             else:
+                total_borrow += 1
                 borrow_table.add_row(
                     pool['name'],
                     pool['balance'],
@@ -213,7 +215,11 @@ class Flux(LendingBase):
                 usd_total, -usd_delta)
         console.print(title_str, style='italic')
         if supply_value > 0:
-            console.print(' Collateralization Ratio: {:.2f}%'.format(
-                supply_value / borrow_value * 100))
+            if borrow_value == 0:
+                console.print(' Collateralization Ratio: inf%')
+            else:
+                console.print(' Collateralization Ratio: {:.2f}%'.format(
+                    supply_value / borrow_value * 100))
         console.print(supply_table)
-        console.print(borrow_table)
+        if total_borrow > 0:
+            console.print(borrow_table)
