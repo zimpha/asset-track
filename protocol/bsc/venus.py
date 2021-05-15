@@ -32,13 +32,13 @@ venus_vault = {
 class Venus(LendingBase):
     XVS = '0xcF6BB5389c92Bdda8a3747Ddb454cB7a64626C63'
 
-    def __init__(self, multicall, xvs_abi, controller_abi, vault_abi):
+    def __init__(self, multicall, xvs_abi, unitroller_abi, vault_abi):
         self.vaults = {}
         for token_name, address in venus_vault.items():
             self.vaults[token_name] = w3.eth.contract(
                 abi=vault_abi, address=address)
-        self.controller = w3.eth.contract(
-            abi=controller_abi, address='0xfD36E2c2a6789Db23113685031d7F16329158384')
+        self.unitroller = w3.eth.contract(
+            abi=unitroller_abi, address='0xfD36E2c2a6789Db23113685031d7F16329158384')
         self.multicall = multicall
         self.xvs = w3.eth.contract(abi=xvs_abi, address=self.XVS)
         self.farm_info = None
@@ -120,7 +120,7 @@ class Venus(LendingBase):
 
     def _get_reward(self, user, markets, borrow, supply, block_number='latest'):
         xvs_balance = self.xvs.functions.balanceOf(user)
-        claim_venus = self.controller.functions.claimVenus(
+        claim_venus = self.unitroller.functions.claimVenus(
             [user],
             markets,
             borrow,

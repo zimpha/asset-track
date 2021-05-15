@@ -224,11 +224,14 @@ asset_table.add_column('Balance', justify='right')
 asset_table.add_column('Price', justify='right')
 asset_table.add_column('USD Value', justify='right')
 asset_table.add_column('Change', justify='right')
-for token_name, token_info in checkpoint['tokens'].items():
+tokens = checkpoint['tokens']
+token_names_sorted = sorted(tokens.keys(), key=lambda x: tokens[x]['amount'] * token_prices.get(x, 0), reverse=True)
+for token_name in token_names_sorted:
+    token_info = tokens[token_name]
     token_amount = token_info['amount']
     token_usd_value = token_amount * token_prices.get(token_name, 0)
     token_info['usd_value'] = token_usd_value
-    if token_usd_value < 1.0:
+    if abs(token_usd_value) < 1.0:
         continue
     last_usd_value = last_checkpoint.get('tokens', {}).get(token_name, {}).get('usd_value', 0)
     token_usd_delta = token_usd_value - last_usd_value

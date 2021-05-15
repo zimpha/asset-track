@@ -40,6 +40,8 @@ See `accounts/example_account.json` for more details.
 + [Venus](https://app.venus.io)
 + [LoserSwap](https://app.loserswap.com/)
 + [ForTube](https://for.tube/)
++ [Alpaca](https://www.alpacafinance.org/)
++ [CoinWind](https://www.coinwind.com/)
 
 ## TODO:
   + add more protocols

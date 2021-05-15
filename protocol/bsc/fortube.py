@@ -65,6 +65,7 @@ class ForTube(LendingBase):
         self.controller = w3.eth.contract(
             abi=controller_abi, address='0xc78248D676DeBB4597e88071D3d889eCA70E5469')
         self.interest_rate_model_abi = interest_rate_model_abi
+        self.health_index = None
         self.blocks_per_year = None
 
     @property
@@ -86,6 +87,7 @@ class ForTube(LendingBase):
     # return shares, asset and apy
     def supply(self, user, pool_name, block_number='latest', optimizer=None):
         if optimizer is None:
+            self._get_health_index(user, block_number)
             shares = self.vaults[pool_name].functions.balanceOf(
                 user).call(block_identifier=block_number)
         else:
@@ -125,6 +127,11 @@ class ForTube(LendingBase):
 
     def borrow_value(self, user, block_number='latest'):
         return 0
+
+    def _get_health_index(self, user, block_number='latest'):
+        if self.health_index is not None:
+            return
+        self.health_index = self.controller.functions.getHealthFactor(user).call(block_identifier=block_number) / 10 ** 18
 
     def _get_blocks_per_year(self, pool_name):
         if self.blocks_per_year is not None:
@@ -176,6 +183,7 @@ class ForTube(LendingBase):
             title_str += "    [bold white]${:.0f}[/]  [red]-${:.0f}[/]".format(
                 usd_total, -usd_delta)
         console.print(title_str, style='italic')
+        console.print(' Health Index: {:.3f}'.format(self.health_index), style='italic')
         console.print(supply_table)
         if borrow:
             console.print(borrow_table)

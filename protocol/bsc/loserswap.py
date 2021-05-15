@@ -11,7 +11,7 @@ pool_index = {
 }
 
 
-class Loserswap(YieldFarmingBase):
+class LoserSwap(YieldFarmingBase):
     lowb = '0x843D4a358471547f51534e3e51fae91cb4Dc3F28'
 
     def __init__(self, master_abi):
@@ -20,7 +20,7 @@ class Loserswap(YieldFarmingBase):
 
     @property
     def name(self):
-        return 'Loserswap'
+        return 'LoserSwap'
 
     @staticmethod
     def token_name():

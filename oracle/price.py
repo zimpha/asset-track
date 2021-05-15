@@ -12,6 +12,7 @@ cmc_slug_map = {
     'BAKE': 'bakerytoken',
     'BUNNY': 'pancakebunny',
     'AUCTION': 'bounce-token',
+    'MDX': 'mdex',
 }
 
 def token_prices(token_slug_names):
