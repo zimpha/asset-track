@@ -14,7 +14,7 @@ from datetime import datetime
 
 def load_account(account_name):
     account_info = json.load(open('./accounts/{}.json'.format(account_name)))
-    account = account_info['account']
+    account = w3.toChecksumAddress(account_info['account'])
     token_slug_set = set()
     portfolio = {}
     for token, strategies in account_info['portfolio']['bsc']['single-asset'].items():
